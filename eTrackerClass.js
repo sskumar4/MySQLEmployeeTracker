@@ -8,6 +8,10 @@ class Database {
 
     }
 
+    // new Promise((_, reject) => reject(new Error('woops'))).
+    //     // Prints "caught woops"
+    // catch(error => { console.log('caught', error.message); });
+
     query(sql, args) {
 
         return new Promise((resolve, reject) => {
@@ -28,9 +32,13 @@ class Database {
 
             });
 
+        }).catch(error => {
+            console.log('Remove referencing records from other tables before this can be deleted')
+                //console.log('caught', error.message);
+
         });
 
-    }
+    };
 
     close() {
 

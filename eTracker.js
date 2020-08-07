@@ -249,6 +249,21 @@ async function viewAllEmployeesByDepartment() {
 }
 
 
+function viewEmployeesByManager() {
+
+    connection.query(sqlqueries.viewEmployeesByManager(), function(err, results) {
+
+        if (err) throw err;
+
+        console.table(results);
+
+        start();
+
+    });
+
+}
+
+
 
 // Will return an array with only two elements in it: 
 
@@ -316,8 +331,98 @@ async function updateEmployeeRole(employeeInfo) {
 
 }
 
+async function updateEmployeeManager(employeeInfo) {
+
+    // Given the name of the manager, what is the manager id?
+
+    // Given the full name of the employee, what is their first_name and last_name?
+
+    // UPDATE employee SET manager_id=1 WHERE employee.first_name='Mary Kay' AND employee.last_name='Ash';
+
+    const managerId = await getEmployeeId(employeeInfo.manager);
+
+    const employee = getFirstAndLastName(employeeInfo.employeeName);
 
 
+
+    let query = 'UPDATE employee SET manager_id=? WHERE employee.first_name=? AND employee.last_name=?';
+
+    let args = [managerId, employee[0], employee[1]];
+
+    const rows = await db.query(query, args);
+
+    console.log(`Updated employee ${employee[0]} ${employee[1]} 's manager as ${employeeInfo.manager}`);
+
+}
+/*
+//Update  Employee Manager
+
+function updateEmployeeManager() {
+
+    inquirer.prompt([
+  
+      {
+  
+        message: "Which employee do you want to update?",
+  
+        name: "selectedEmployee",
+  
+        type: "list",
+  
+        choices: employeeList
+  
+      },
+  
+      {
+  
+        message: "Select their new manager.",
+  
+        name: "selectedManager",
+  
+        type: "list",
+  
+        choices: employeeList
+  
+      }
+  
+    ]).then(function (answer) {
+  
+  
+  
+      var employeeIdToUpdate = (findEmployeeId(answer.selectedEmployee, employeeListObj)) ? findEmployeeId(answer.selectedEmployee, employeeListObj) : null;
+  
+  
+  
+      if (answer.selectedManager === answer.selectedEmployee) {
+  
+        newManagerId = null;
+  
+      } else if (findEmployeeId(answer.selectedManager, employeeListObj)) {
+  
+        newManagerId = findEmployeeId(answer.selectedManager, employeeListObj);
+  
+      } else {
+  
+        newManagerId = null;
+  
+      }
+  
+  
+  
+      connection.query(sqlqueries.updateEmployeeManager(newManagerId, employeeIdToUpdate), function (err, results) {
+  
+        if (err) throw err;
+  
+        console.log('The manager for ' + answer.selectedEmployee + ' has been changed to ' + answer.selectedManager + '.');
+  
+        init();
+  
+      });
+  
+    });
+  
+  }
+*/
 async function addEmployee(employeeInfo) {
 
     let roleId = await getRoleId(employeeInfo.role);
@@ -356,6 +461,43 @@ async function removeEmployee(employeeInfo) {
 
 }
 
+async function removeDepartment(departmentInfo) {
+
+
+    // DELETE from employee 
+
+    let query = "DELETE from department WHERE name=?";
+
+    let args = [departmentInfo.departmentName];
+
+    //let rows;
+    const rows = await db.query(query, args);
+
+    if (rows !== undefined) {
+        console.log(`Department removed: ${departmentInfo.departmentName}`);
+    } else {
+        console.log(`Department cannot be removed because of foreign key references`);
+        console.log(`Please remove all rows from role table that reference this department  before retry`);
+    }
+
+}
+
+async function removeRole(roleInfo) {
+    // DELETE from role 
+
+    let query = "DELETE from role WHERE title=?";
+
+    let args = [roleInfo.title];
+
+    const rows = await db.query(query, args);
+
+    console.log(`
+            Role removed: $ { roleInfo.title }
+            `);
+}
+
+
+
 
 
 async function addDepartment(departmentInfo) {
@@ -368,7 +510,9 @@ async function addDepartment(departmentInfo) {
 
     const rows = await db.query(query, args);
 
-    console.log(`Added department named ${departmentName}`);
+    console.log(`
+            Added department named $ { departmentName }
+            `);
 
 }
 
@@ -390,7 +534,9 @@ async function addRole(roleInfo) {
 
     const rows = await db.query(query, args);
 
-    console.log(`Added role ${title}`);
+    console.log(`
+            Added role $ { title }
+            `);
 
 }
 
@@ -428,7 +574,13 @@ async function mainPrompt() {
 
                 "Remove employee",
 
+                "Remove department",
+
+                "Remove role",
+
                 "Update employee role",
+
+                "Update employee manager",
 
                 "View all departments",
 
@@ -550,6 +702,55 @@ async function getRemoveEmployeeInfo() {
 
     ])
 
+}
+
+async function getRemoveDepartmentInfo() {
+
+    const departments = await getDepartmentNames();
+
+    return inquirer
+
+        .prompt([
+
+        {
+
+            type: "list",
+
+            message: "Which department do you want to remove?",
+
+            name: "departmentName",
+
+            choices: [
+
+                // populate from db
+
+                ...departments
+
+            ]
+
+        }
+
+    ])
+
+}
+
+
+async function getRemoveRoleInfo() {
+    const roles = await getRoles();
+
+    return inquirer.prompt([{
+        type: "list",
+
+        message: "Which role do you want to remove?",
+
+        name: "title",
+
+        choices: [
+            // populate from db
+
+            ...roles,
+        ],
+    }, ]);
 }
 
 
@@ -680,6 +881,57 @@ async function getUpdateEmployeeRoleInfo() {
 
 }
 
+async function getUpdateEmployeeManagerInfo() {
+
+    const employees = await getEmployeeNames();
+
+    //const roles = await getRoles();
+
+    return inquirer
+
+        .prompt([
+
+        {
+
+            type: "list",
+
+            message: "Which employee do you want to update?",
+
+            name: "employeeName",
+
+            choices: [
+
+                // populate from db
+
+                ...employees
+
+            ]
+
+        },
+
+        {
+
+            type: "list",
+
+            message: "Who is the employee's new manager?",
+
+            name: "manager",
+
+            choices: [
+
+                // populate from db
+
+                ...employees
+
+            ]
+
+        }
+
+    ])
+
+
+
+}
 
 
 async function main() {
@@ -750,6 +1002,26 @@ async function main() {
 
                 }
 
+            case 'Remove department':
+                {
+
+                    const department = await getRemoveDepartmentInfo();
+                    console.log('Remove department', department);
+                    await removeDepartment(department);
+
+                    break;
+
+                }
+
+            case "Remove role":
+                {
+                    const role = await getRemoveRoleInfo();
+
+                    await removeRole(role);
+
+                    break;
+                }
+
 
 
             case 'Update employee role':
@@ -758,6 +1030,17 @@ async function main() {
                     const employee = await getUpdateEmployeeRoleInfo();
 
                     await updateEmployeeRole(employee);
+
+                    break;
+
+                }
+
+            case 'Update employee manager':
+                {
+
+                    const employee = await getUpdateEmployeeManagerInfo();
+
+                    await updateEmployeeManager(employee);
 
                     break;
 
@@ -824,7 +1107,8 @@ async function main() {
 
             default:
 
-                console.log(`Internal warning. Shouldn't get here. action was ${prompt.action}`);
+                console.log(`
+            Internal warning.Shouldn 't get here. action was ${prompt.action}`);
 
         }
 
