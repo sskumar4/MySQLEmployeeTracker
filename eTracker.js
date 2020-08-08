@@ -248,6 +248,32 @@ async function viewAllEmployeesByDepartment() {
 
 }
 
+async function viewTotalUtilizedBudget() {
+    let query = `SELECT 
+    department.name AS department,
+    department.id AS dept_id,
+    SUM(salary) 'Utilized Budget'
+FROM
+((employee INNER JOIN role ON role_id = role.id) INNER JOIN department ON department_id = department.id) GROUP BY department.name`;
+    const rows = await db.query(query);
+
+    console.table(rows);
+}
+async function viewAllEmployeesByDepartment() {
+    // View all employees by department
+
+    // SELECT first_name, last_name, department.name FROM ((employee INNER JOIN role ON role_id = role.id) INNER JOIN department ON department_id = department.id);
+
+    console.log("");
+
+    let query =
+        "SELECT CONCAT(first_name, ' ', last_name) AS 'Employee Name', department.name AS department_name FROM ((employee INNER JOIN role ON role_id = role.id) INNER JOIN department ON department_id = department.id);";
+
+    const rows = await db.query(query);
+
+    console.table(rows);
+}
+
 async function viewAllEmployeesByManager() {
     // View all employees by department
 
@@ -262,36 +288,20 @@ INNER JOIN employee m ON
   m.id = e.manager_id
 ORDER BY 
   Manager`;
-    // for (i = 0; i < managers.length; i++) {
-    //   console.log("manager-name = ", managers[i]);
-    //   let manager_id = await getEmployeeId(managers[i]);
-    //   let query =
-    //     "SELECT employee.id, employee.first_name, employee.last_name,  employee.manager_id FROM employee WHERE employee.manager_id = ?";
-    //   let args = [];
-    //   args.push(manager_id);
-    //   console.log("query", query);
-    //   console.log("manager-id", manager_id);
     const rows = await db.query(query);
     console.table(rows);
 }
 
 function viewEmployeesByManager() {
-
     connection.query(sqlqueries.viewEmployeesByManager(), function(err, results) {
-
         if (err) throw err;
-
         console.table(results);
-
         start();
-
     });
 
 }
 
-
-
-// Will return an array with only two elements in it: 
+// return an array with only two elements in it: 
 
 // [first_name, last_name]
 
@@ -592,6 +602,8 @@ async function mainPrompt() {
                 "View all departments",
 
                 "View all employees",
+
+                "View total utilized budget by department",
 
                 "View all employees by department",
 
@@ -1077,6 +1089,12 @@ async function main() {
 
                 }
 
+
+            case "View total utilized budget by department":
+                {
+                    await viewTotalUtilizedBudget();
+                    break;
+                }
 
 
             case 'View all employees by department':
