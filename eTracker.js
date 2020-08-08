@@ -248,6 +248,32 @@ async function viewAllEmployeesByDepartment() {
 
 }
 
+async function viewAllEmployeesByManager() {
+    // View all employees by department
+
+    // SELECT first_name, last_name, department.name FROM ((employee INNER JOIN role ON role_id = role.id) INNER JOIN department ON department_id = department.id);
+    const managers = await getManagerNames();
+    let query = `SELECT 
+  CONCAT(e.first_name, ' ', e.last_name) AS 'Employee Name',
+  CONCAT(m.first_name, ' ', m.last_name) AS Manager
+FROM
+  employee e
+INNER JOIN employee m ON 
+  m.id = e.manager_id
+ORDER BY 
+  Manager`;
+    // for (i = 0; i < managers.length; i++) {
+    //   console.log("manager-name = ", managers[i]);
+    //   let manager_id = await getEmployeeId(managers[i]);
+    //   let query =
+    //     "SELECT employee.id, employee.first_name, employee.last_name,  employee.manager_id FROM employee WHERE employee.manager_id = ?";
+    //   let args = [];
+    //   args.push(manager_id);
+    //   console.log("query", query);
+    //   console.log("manager-id", manager_id);
+    const rows = await db.query(query);
+    console.table(rows);
+}
 
 function viewEmployeesByManager() {
 
@@ -568,6 +594,8 @@ async function mainPrompt() {
                 "View all employees",
 
                 "View all employees by department",
+
+                "View all employees by manager",
 
                 "View all roles",
 
@@ -1058,6 +1086,13 @@ async function main() {
 
                     break;
 
+                }
+
+            case "View all employees by manager":
+                {
+                    await viewAllEmployeesByManager();
+
+                    break;
                 }
 
 
