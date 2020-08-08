@@ -446,30 +446,19 @@ async function addEmployee(employeeInfo) {
 
 
 async function removeEmployee(employeeInfo) {
-
     const employeeName = getFirstAndLastName(employeeInfo.employeeName);
-
     // DELETE from employee WHERE first_name="Cyrus" AND last_name="Smith";
-
     let query = "DELETE from employee WHERE first_name=? AND last_name=?";
-
     let args = [employeeName[0], employeeName[1]];
-
     const rows = await db.query(query, args);
-
     console.log(`Employee removed: ${employeeName[0]} ${employeeName[1]}`);
-
 }
 
 async function removeDepartment(departmentInfo) {
 
-
     // DELETE from employee 
-
     let query = "DELETE from department WHERE name=?";
-
     let args = [departmentInfo.departmentName];
-
     //let rows;
     const rows = await db.query(query, args);
 
@@ -484,21 +473,19 @@ async function removeDepartment(departmentInfo) {
 
 async function removeRole(roleInfo) {
     // DELETE from role 
-
     let query = "DELETE from role WHERE title=?";
-
     let args = [roleInfo.title];
-
     const rows = await db.query(query, args);
+    if (rows !== undefined) {
+        console.log(`Role removed:  ${roleInfo.title}`);
+    } else {
+        console.log(`Role cannot be removed because of foreign key references`);
+        console.log(
+            `Please remove all rows from employee table that reference this role before retry`
+        );
+    }
 
-    console.log(`
-            Role removed: $ { roleInfo.title }
-            `);
 }
-
-
-
-
 
 async function addDepartment(departmentInfo) {
 
@@ -515,8 +502,6 @@ async function addDepartment(departmentInfo) {
             `);
 
 }
-
-
 
 async function addRole(roleInfo) {
 
@@ -540,15 +525,11 @@ async function addRole(roleInfo) {
 
 }
 
-
-
 /* 
 
 End of calls to the database
 
 */
-
-
 
 async function mainPrompt() {
 
