@@ -1,5 +1,5 @@
-# Project Name: MySQLEmployeeTracker
-# Title: Employee Tracker
+## Project Name: MySQLEmployeeTracker
+## Title: Employee Tracker
 
 ![video](Assets/employeetracker.gif)
 
@@ -23,6 +23,8 @@
 ##  1. <a name='Linktorepository'></a>Link to repository
 
 * [Repository](https://github.com/sskumar4/MySQLEmployeeTracker)
+* [Link to Walkthrough video](https://youtu.be/fQnaw22uupk)
+  
 
 ##  2. <a name='Introduction'></a>Introduction   
 Create a command-line application for managing a company’s employees with features to view and manage the departments, roles, and employees in a company using node, inquirer, and MySQL.
