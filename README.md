@@ -1,7 +1,7 @@
 # Project Name: MySQLEmployeeTracker
 # Title: Employee Tracker
 
-![video](assets/EmployeeTracker.gif)
+![video](assets/employeetracker.gif)
 
 ## Table of Contents
 

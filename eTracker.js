@@ -406,7 +406,7 @@ async function addDepartment(departmentInfo) {
     const rows = await db.query(query, args);
 
     console.log(`
-            Added department named $ { departmentName }
+            Added department ${departmentName}
             `);
 
 }
@@ -428,7 +428,7 @@ async function addRole(roleInfo) {
     const rows = await db.query(query, args);
 
     console.log(`
-            Added role $ { title }
+            Added role ${title}
             `);
 
 }
