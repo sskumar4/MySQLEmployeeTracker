@@ -1,56 +1,33 @@
 const inquirer = require("inquirer");
-
 let Database = require("./eTrackerClass.js");
-
 let cTable = require("console.table");
-
-
-
 const db = new Database({
-
     host: "localhost",
-
     port: 3306,
-
     user: "root",
-
     password: "Vetrivelk03#",
-
     database: "eTracker"
-
 });
-
-
 
 /*
 
   Start of calls to the database 
 
 */
-
 async function getManagerNames() {
 
     let query = "SELECT * FROM employee WHERE manager_id IS NULL";
 
-
-
     const rows = await db.query(query);
-
     //console.log("number of rows returned " + rows.length);
-
     let employeeNames = [];
-
     for (const employee of rows) {
-
         employeeNames.push(employee.first_name + " " + employee.last_name);
-
     }
 
     return employeeNames;
 
 }
-
-
 
 async function getRoles() {
 
@@ -70,13 +47,9 @@ async function getRoles() {
 
     }
 
-
-
     return roles;
 
 }
-
-
 
 async function getDepartmentNames() {
 
@@ -86,8 +59,6 @@ async function getDepartmentNames() {
 
     //console.log("Number of rows returned: " + rows.length);
 
-
-
     let departments = [];
 
     for (const row of rows) {
@@ -96,13 +67,9 @@ async function getDepartmentNames() {
 
     }
 
-
-
     return departments;
 
 }
-
-
 
 // Given the name of the department, what is its id?
 
@@ -118,8 +85,6 @@ async function getDepartmentId(departmentName) {
 
 }
 
-
-
 // Given the name of the role, what is its id?
 
 async function getRoleId(roleName) {
@@ -134,8 +99,6 @@ async function getRoleId(roleName) {
 
 }
 
-
-
 // need to find the employee.id of the named manager
 
 async function getEmployeeId(fullName) {
@@ -143,8 +106,6 @@ async function getEmployeeId(fullName) {
     // First split the name into first name and last name
 
     let employee = getFirstAndLastName(fullName);
-
-
 
     let query = 'SELECT id FROM employee WHERE employee.first_name=? AND employee.last_name=?';
 
@@ -156,13 +117,9 @@ async function getEmployeeId(fullName) {
 
 }
 
-
-
 async function getEmployeeNames() {
 
     let query = "SELECT * FROM employee";
-
-
 
     const rows = await db.query(query);
 
@@ -177,8 +134,6 @@ async function getEmployeeNames() {
     return employeeNames;
 
 }
-
-
 
 async function viewAllRoles() {
 
@@ -196,8 +151,6 @@ async function viewAllRoles() {
 
 }
 
-
-
 async function viewAllDepartments() {
 
     // SELECT * from department;
@@ -212,25 +165,16 @@ async function viewAllDepartments() {
 
 }
 
-
-
 async function viewAllEmployees() {
-
     console.log("");
-
-
-
     // SELECT * FROM employee;
-
-    let query = "SELECT * FROM employee";
-
+    let query = `SELECT CONCAT(e.first_name, ' ', e.last_name) AS 'Employee Name', title, department.name AS department, salary, CONCAT(m.first_name, ' ', m.last_name) AS Manager FROM (((employee e INNER JOIN role ON role_id = role.id) INNER JOIN department ON department_id = department.id) LEFT JOIN employee m ON 
+    m.id = e.manager_id)`;
     const rows = await db.query(query);
 
     console.table(rows);
 
 }
-
-
 
 async function viewAllEmployeesByDepartment() {
 
@@ -287,7 +231,7 @@ FROM
 INNER JOIN employee m ON 
   m.id = e.manager_id
 ORDER BY 
-  Manager`;
+  Manager DESC`;
     const rows = await db.query(query);
     console.table(rows);
 }
@@ -390,82 +334,12 @@ async function updateEmployeeManager(employeeInfo) {
     console.log(`Updated employee ${employee[0]} ${employee[1]} 's manager as ${employeeInfo.manager}`);
 
 }
-/*
-//Update  Employee Manager
 
-function updateEmployeeManager() {
-
-    inquirer.prompt([
-  
-      {
-  
-        message: "Which employee do you want to update?",
-  
-        name: "selectedEmployee",
-  
-        type: "list",
-  
-        choices: employeeList
-  
-      },
-  
-      {
-  
-        message: "Select their new manager.",
-  
-        name: "selectedManager",
-  
-        type: "list",
-  
-        choices: employeeList
-  
-      }
-  
-    ]).then(function (answer) {
-  
-  
-  
-      var employeeIdToUpdate = (findEmployeeId(answer.selectedEmployee, employeeListObj)) ? findEmployeeId(answer.selectedEmployee, employeeListObj) : null;
-  
-  
-  
-      if (answer.selectedManager === answer.selectedEmployee) {
-  
-        newManagerId = null;
-  
-      } else if (findEmployeeId(answer.selectedManager, employeeListObj)) {
-  
-        newManagerId = findEmployeeId(answer.selectedManager, employeeListObj);
-  
-      } else {
-  
-        newManagerId = null;
-  
-      }
-  
-  
-  
-      connection.query(sqlqueries.updateEmployeeManager(newManagerId, employeeIdToUpdate), function (err, results) {
-  
-        if (err) throw err;
-  
-        console.log('The manager for ' + answer.selectedEmployee + ' has been changed to ' + answer.selectedManager + '.');
-  
-        init();
-  
-      });
-  
-    });
-  
-  }
-*/
 async function addEmployee(employeeInfo) {
 
     let roleId = await getRoleId(employeeInfo.role);
 
     let managerId = await getEmployeeId(employeeInfo.manager);
-
-
 
     // INSERT into employee (first_name, last_name, role_id, manager_id) VALUES ("Bob", "Hope", 8, 5);
 
@@ -478,8 +352,6 @@ async function addEmployee(employeeInfo) {
     console.log(`Added employee ${employeeInfo.first_name} ${employeeInfo.last_name}.`);
 
 }
-
-
 
 async function removeEmployee(employeeInfo) {
     const employeeName = getFirstAndLastName(employeeInfo.employeeName);
@@ -562,9 +434,7 @@ async function addRole(roleInfo) {
 }
 
 /* 
-
 End of calls to the database
-
 */
 
 async function mainPrompt() {
@@ -620,8 +490,6 @@ async function mainPrompt() {
     ])
 
 }
-
-
 
 async function getAddEmployeeInfo() {
 
@@ -898,8 +766,6 @@ async function getUpdateEmployeeRoleInfo() {
 
     ])
 
-
-
 }
 
 async function getUpdateEmployeeManagerInfo() {
@@ -950,8 +816,6 @@ async function getUpdateEmployeeManagerInfo() {
 
     ])
 
-
-
 }
 
 
@@ -978,8 +842,6 @@ async function main() {
 
                 }
 
-
-
             case 'Add employee':
                 {
 
@@ -995,8 +857,6 @@ async function main() {
 
                 }
 
-
-
             case 'Add role':
                 {
 
@@ -1009,8 +869,6 @@ async function main() {
                     break;
 
                 }
-
-
 
             case 'Remove employee':
                 {
@@ -1043,8 +901,6 @@ async function main() {
                     break;
                 }
 
-
-
             case 'Update employee role':
                 {
 
@@ -1067,8 +923,6 @@ async function main() {
 
                 }
 
-
-
             case 'View all departments':
                 {
 
@@ -1077,8 +931,6 @@ async function main() {
                     break;
 
                 }
-
-
 
             case 'View all employees':
                 {
@@ -1089,13 +941,11 @@ async function main() {
 
                 }
 
-
             case "View total utilized budget by department":
                 {
                     await viewTotalUtilizedBudget();
                     break;
                 }
-
 
             case 'View all employees by department':
                 {
@@ -1113,8 +963,6 @@ async function main() {
                     break;
                 }
 
-
-
             case 'View all roles':
                 {
 
@@ -1123,8 +971,6 @@ async function main() {
                     break;
 
                 }
-
-
 
             case 'Exit':
                 {
@@ -1137,8 +983,6 @@ async function main() {
 
                 }
 
-
-
             default:
 
                 console.log(`
@@ -1149,8 +993,6 @@ async function main() {
     }
 
 }
-
-
 
 // Close your database connection when Node exits
 
